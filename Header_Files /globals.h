@@ -9,7 +9,6 @@
 #define INSTRUCTIONS_COUNT 4
 #define INIT_IC_VAL 100
 #define INIT_DC_VAL 0
-#define MAX_IC_VAL 3000
-
+#define MAX_WORDS 10 //2097152
 
 #endif

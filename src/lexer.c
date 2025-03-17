@@ -356,6 +356,10 @@ int readInstruction(char line[], Error_Location location, DataTable* data_table)
                 else print_infile_error(NOT_A_NUMBER,location);
                 return 0;
             }
+            if(data_table->size == data_table->capacity){
+                data_table->capacity *= 2;
+                data_table->data = (int*)realloc(data_table->data, data_table->capacity * sizeof(int));
+            }
             data_table->data[data_table->size] = atoi(token.data);
             data_table->DC++;
             data_table->size++;
@@ -380,11 +384,19 @@ int readInstruction(char line[], Error_Location location, DataTable* data_table)
         }
         c = token.data[i];
         while(c != '"'){
+            if(data_table->size == data_table->capacity){
+                data_table->capacity *= 2;
+                data_table->data = (int*)realloc(data_table->data, data_table->capacity * sizeof(int));
+            }
             data_table->data[data_table->size] = (int)c;
             data_table->DC++;
             data_table->size++;
             i++;
             c = token.data[i];
+        }
+        if(data_table->size == data_table->capacity){
+            data_table->capacity *= 2;
+            data_table->data = (int*)realloc(data_table->data, data_table->capacity * sizeof(int));
         }
         data_table->data[data_table->size] = 0;
         data_table->DC++;

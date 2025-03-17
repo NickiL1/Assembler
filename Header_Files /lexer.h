@@ -45,15 +45,17 @@ typedef struct Command{
 
 
 typedef struct CodeTable{
+    int capacity;
     int IC;
     int size;
-    Command table[MAX_IC_VAL];
+    Command* table;
 }CodeTable;
 
 typedef struct DataTable{
+    int capacity;
     int DC;
     int size;
-    int data[MAX_IC_VAL];
+    int* data;
 }DataTable;
 
 

@@ -22,7 +22,8 @@ typedef enum Error_Code_Name{
     MISSING_NET,
     ILLEGAL_ARG,
     ILLEGAL_DOUBLE,
-    ILLEGAL_INSTR
+    ILLEGAL_INSTR,
+    MEM_LIM
 } Error_Code_Name;
 
 typedef struct Error{

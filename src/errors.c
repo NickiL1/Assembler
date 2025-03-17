@@ -22,7 +22,8 @@ Error errors[] = {
     {MISSING_NET,"Missing # before number."},
     {ILLEGAL_ARG,"Illegal argument for this command."},
     {ILLEGAL_DOUBLE, "Doubles are not allowed in this language, only integers."},
-    {ILLEGAL_INSTR, "Illegal instruction, has to be .data or .string."}
+    {ILLEGAL_INSTR, "Illegal instruction, has to be .data or .string."},
+    {MEM_LIM, "The program exceeds the amount of allocated memory."}
 };
 
 void print_sys_error(Error_Code_Name error){
