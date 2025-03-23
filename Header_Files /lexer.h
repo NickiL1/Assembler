@@ -9,10 +9,11 @@
 
 
 
-typedef struct op_code {
+typedef struct OpCode {
     char *opcode;    /* The name of the opcode corresponding to the operation */
-    int arg_num;     /* The number of arguments for the operation */
-} op_code;
+    int code;
+    int funct;
+} OpCode;
 
 typedef enum {
     TOKEN_OPCODE,      
@@ -27,20 +28,22 @@ typedef enum {
     TOKEN_COMMAND_NUMBER,
     TOKEN_AMP_LABEL,
     TOKEN_LABEL,
-    TOKEN_ERROR
+    TOKEN_ERROR,
+    TOKEN_NULL
 } TokenType;
 
 
 typedef struct {
     TokenType type;
-    char data[MAX_LINE_LEN];
+    char data[MAX_LABEL_LEN + 1];
 } Token;
 
 typedef struct Command{
-    char opCode[MAX_LABEL_LEN];
-    char arg1[MAX_LABEL_LEN];
-    char arg2[MAX_LABEL_LEN];
+    char opCode[5];
+    Token arg1;
+    Token arg2;
     int totalWords;
+    int line;
 }Command;
 
 

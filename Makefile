@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -ansi -Wall -pedantic -g 
-EXE_DEPS =  assembler.o preassem.o firstpass.o errors.o util.o lexer.o datastrct.o table.o
+EXE_DEPS =  assembler.o preassem.o firstpass.o secondpass.o errors.o util.o lexer.o datastrct.o table.o
 
 assembler: $(EXE_DEPS) src/assembler.c
 	$(CC)  $(EXE_DEPS) $(CFLAGS) -o $@
@@ -14,6 +14,8 @@ preassem.o: src/preassem.c
 firstpass.o: src/firstpass.c
 	$(CC) -c src/firstpass.c $(CFLAGS) -o $@
 
+secondpass.o: src/secondpass.c
+	$(CC) -c src/secondpass.c $(CFLAGS) -o $@
 errors.o: src/errors.c
 	$(CC) -c src/errors.c $(CFLAGS) -o $@
 
@@ -28,3 +30,6 @@ datastrct.o: src/datastrct.c
 
 table.o: src/table.c
 	$(CC) -c src/table.c $(CFLAGS) -o $@
+
+clean: 
+	rm -rf *.o

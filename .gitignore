@@ -1,6 +1,4 @@
-*.o
-*.am 
-*.as 
+*.o 
 assembler
 
 

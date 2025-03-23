@@ -23,7 +23,11 @@ typedef enum Error_Code_Name{
     ILLEGAL_ARG,
     ILLEGAL_DOUBLE,
     ILLEGAL_INSTR,
-    MEM_LIM
+    MEM_LIM,
+    UNDEFINED_LABEL,
+    LABEL_CONFLICT,
+    LABEL_ALREADY_DEFINED,
+    ILLEGAL_LABEL_USE
 } Error_Code_Name;
 
 typedef struct Error{

@@ -23,7 +23,11 @@ Error errors[] = {
     {ILLEGAL_ARG,"Illegal argument for this command."},
     {ILLEGAL_DOUBLE, "Doubles are not allowed in this language, only integers."},
     {ILLEGAL_INSTR, "Illegal instruction, has to be .data or .string."},
-    {MEM_LIM, "The program exceeds the amount of allocated memory."}
+    {MEM_LIM, "The program exceeds the amount of allocated memory."},
+    {UNDEFINED_LABEL,"Label was not defined"},
+    {LABEL_CONFLICT,"Label of type .entry can not be also of type .extern"},
+    {LABEL_ALREADY_DEFINED,"Label was already defined previously."},
+    {ILLEGAL_LABEL_USE, "Can not use &Label with Label of type external."}
 };
 
 void print_sys_error(Error_Code_Name error){
