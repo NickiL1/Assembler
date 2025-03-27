@@ -440,6 +440,7 @@ int read_entry_extern(char line[], Label** head, Error_Location location){
         strcpy(temporary->type, "external");
         addLabelToList(head,temporary);
     }
+    else free (temporary);
     token = get_next_token(line,&pos);
     if(expect(TOKEN_EOL,token,location,0) == 0) return 0;
     return 1;

@@ -28,7 +28,7 @@ char *REGISTERS_ARRAY_2[] = {"r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"};
 /* Define the instructions */
 char *INSTRUCTIONS_ARRAY_2[] = {".data", ".string", ".extern", ".entry"};
 
-int secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTable* data_table, Label* head){
+int secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTable* data_table, Label* head, int prevError){
     Error_Location location;
     int pos, status, error_raised;
     char line[MAX_LINE_LEN];
@@ -37,7 +37,7 @@ int secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTab
     strcpy(location.filename,am_file_name);
     location.line = 0;
     status = 1;
-    error_raised = 0;
+    error_raised = prevError;
     create_file(am_file_name,".ent",ent_file_name);
     create_file(am_file_name,".ob", ob_file_name);
     create_file(am_file_name,".ext", ext_file_name);
@@ -149,7 +149,7 @@ int create_ob_ext_files(char* am_file_name, char* ob_file_name, char* ext_file_n
         print_file_related_error(CREATE_FILE,ext_file_name);
         return 0;
     }
-    
+
     fprintf(ob_file,"     %d %d\n",code_table->IC - 100, data_table->DC);
     for (j = 0; j < code_table->size; j++){
         temp_command = code_table->table[j];

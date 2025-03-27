@@ -37,7 +37,7 @@ void freeLabelList(Label* head){
     }
 }
 
-Label* createLabel(){
+Label* createLabel(void){
     Label* newLabel = (Label*)malloc(sizeof(Label));
     if(newLabel == NULL){ 
         print_sys_error(MEMORY_ALOC);

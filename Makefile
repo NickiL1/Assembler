@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -ansi -Wall -pedantic -g 
+CFLAGS = -ansi -Wall -pedantic  -fsanitize=address -g
 EXE_DEPS =  assembler.o preassem.o firstpass.o secondpass.o errors.o util.o lexer.o datastrct.o table.o
 
 assembler: $(EXE_DEPS) src/assembler.c
@@ -16,6 +16,7 @@ firstpass.o: src/firstpass.c
 
 secondpass.o: src/secondpass.c
 	$(CC) -c src/secondpass.c $(CFLAGS) -o $@
+
 errors.o: src/errors.c
 	$(CC) -c src/errors.c $(CFLAGS) -o $@
 

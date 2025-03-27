@@ -30,8 +30,7 @@ int create_am_file(FILE* as_file, char* as_file_name){
     int status;
 
     head = NULL;
-    strcpy(am_file_name,as_file_name);
-    am_file_name[strlen(as_file_name) - 1] = 'm'; 
+    create_file(as_file_name,".am",am_file_name); 
     
     am_file = fopen(am_file_name,"w+");
     if(am_file == NULL){

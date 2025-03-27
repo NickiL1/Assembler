@@ -7,6 +7,7 @@
 
 
 int firstPass(char* as_file_name){
+    /* declaring and initializing some variables which will be used in the first and second pass.*/
     FILE* am_file;
     Error_Location location;
     int success_status, pos, ICF, DCF, error_raised;
@@ -64,7 +65,7 @@ int firstPass(char* as_file_name){
             if (success_status == -1) success_status = readInstruction(line,location,data_table);
             if (success_status == -1) success_status = readCommand(line,location,code_table);
         }
-        if(error_raised == 0) error_raised = !success_status;
+        if(success_status == 0) error_raised = 1;
     }
     ICF = code_table->IC;
     DCF = data_table->DC;
@@ -79,7 +80,7 @@ int firstPass(char* as_file_name){
         temp = temp->next;
     }
         
-    return secondPass(am_file_name, am_file,code_table,data_table,head);
+    return secondPass(am_file_name, am_file,code_table,data_table,head, error_raised);
 }
 
 

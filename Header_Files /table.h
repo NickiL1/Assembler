@@ -13,7 +13,7 @@ typedef struct Label{
 void addLabelToList(Label** head, Label* label);
 Label* searchLabel(Label* head, char name[]);
 void freeLabelList(Label* head);
-Label* createLabel();
+Label* createLabel(void);
 
 
 #endif
