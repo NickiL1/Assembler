@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../Header_Files /lexer.h"
+#include "../Header_Files /preassem.h"
 
 
 
@@ -275,6 +276,10 @@ int isLabelDecl(char str[], Label* head, Error_Location location){
         print_infile_error(LABEL_ALREADY_DEFINED,location);
         return 0;
     }
+    if (searchMacro(macro_head_node, str_copy) != NULL){
+        print_infile_error(MACRO_LABEL_COLLISION,location);
+        return 0;
+    }
     if(!status) print_infile_error(INVALID_LABEL_NAME,location);
     return status;
 }
@@ -284,7 +289,7 @@ int isLegalLabelName(char name[], Label* head){
     int i = 0;
     if(is_instr(name) || what_opcode(name) >= 0 || what_reg(name) >= 0 ||
     !strcmp(name,"mcro") || !strcmp(name,"mcroend") || searchLabel(head,name) != NULL ||
-    strlen(name) > MAX_LABEL_LEN){ 
+    strlen(name) > MAX_LABEL_LEN || searchMacro(macro_head_node, name) != NULL){ 
         return 0;
     }
     if(!isalpha(name[i])){

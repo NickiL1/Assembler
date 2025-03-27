@@ -29,7 +29,8 @@ typedef enum Error_Code_Name{
     UNDEFINED_LABEL,
     LABEL_CONFLICT,
     LABEL_ALREADY_DEFINED,
-    ILLEGAL_LABEL_USE
+    ILLEGAL_LABEL_USE,
+    MACRO_LABEL_COLLISION
 } Error_Code_Name;
 
 typedef struct Error{

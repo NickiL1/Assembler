@@ -1,12 +1,13 @@
 #include "../Header_Files /globals.h"
 #include "../Header_Files /lexer.h"
 #include "../Header_Files /secondpass.h"
+#include "../Header_Files /preassem.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 
-int firstPass(char* as_file_name){
+void firstPass(char* as_file_name){
     /* declaring and initializing some variables which will be used in the first and second pass.*/
     FILE* am_file;
     Error_Location location;
@@ -42,7 +43,13 @@ int firstPass(char* as_file_name){
     am_file = fopen(am_file_name,"r");
     if(am_file == NULL){
         print_file_related_error(FILE_HANDLE,location.filename);
-        return 0;
+        free(code_table->table);
+        free(code_table);
+        free(data_table->data);
+        free(data_table);
+        freeLabelList(head);
+        freeMacroList(macro_head_node);
+        return;
     }
 
     while(fgets(line,sizeof(line),am_file)){
@@ -80,7 +87,7 @@ int firstPass(char* as_file_name){
         temp = temp->next;
     }
         
-    return secondPass(am_file_name, am_file,code_table,data_table,head, error_raised);
+    secondPass(am_file_name, am_file,code_table,data_table,head, error_raised);
 }
 
 

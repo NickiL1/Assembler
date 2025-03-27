@@ -7,7 +7,6 @@
 #include "../Header_Files /firstpass.h"
 
 int main(int argc, char* argv[]){
-    int status;
     int arg = 1;
     while (arg < argc){
         if(strstr(argv[arg], ".as") == NULL){
@@ -15,8 +14,7 @@ int main(int argc, char* argv[]){
             arg++;
             continue;
         }
-        status = pre_assembler(argv[arg]);
-        if(status) status = firstPass(argv[arg]);
+        pre_assembler(argv[arg]);
         arg++;
     }
     return 0;

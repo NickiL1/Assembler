@@ -27,7 +27,8 @@ Error errors[] = {
     {UNDEFINED_LABEL,"Label was not defined"},
     {LABEL_CONFLICT,"Label of type .entry can not be also of type .extern"},
     {LABEL_ALREADY_DEFINED,"Label was already defined previously."},
-    {ILLEGAL_LABEL_USE, "Can not use &Label with Label of type external."}
+    {ILLEGAL_LABEL_USE, "Can not use &Label with Label of type external."},
+    {MACRO_LABEL_COLLISION, "Macro name can not be also label name."}
 };
 
 void print_sys_error(Error_Code_Name error){

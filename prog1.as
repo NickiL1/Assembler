@@ -23,6 +23,3 @@ LIST:       .data   6, -9
 K:          .data   31
 .extern L3
 
-
-
- 

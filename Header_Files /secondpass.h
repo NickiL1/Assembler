@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 
-int secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTable* data_table, Label* head, int prevError);
+void secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTable* data_table, Label* head, int prevError);
 int add_entry(char label[], Label* head, Error_Location location);
 int create_ent_file(char ent_file_name[], Label* head);
 int create_ob_ext_files(char* am_file_name, char* ob_file_name, char* ext_file_name, Label* head, 

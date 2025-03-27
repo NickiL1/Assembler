@@ -4,21 +4,23 @@
 #include "../Header_Files /globals.h"
 #include "../Header_Files /preassem.h"
 #include "../Header_Files /util.h"
+#include "../Header_Files /firstpass.h"
 
 
 
-int pre_assembler(char* as_file_name){
+void pre_assembler(char* as_file_name){
     FILE *as_file;
     int res;
     as_file = fopen(as_file_name,"r");
     if(as_file == NULL){
         print_file_related_error(FILE_HANDLE,as_file_name);
         fclose(as_file);
-        return 0;
+        return;
     }
     res = create_am_file(as_file,as_file_name);
     fclose(as_file);
-    return res;
+    if (res != 0) firstPass(as_file_name);
+    else return;
 }
 
 
@@ -26,10 +28,9 @@ int pre_assembler(char* as_file_name){
 int create_am_file(FILE* as_file, char* as_file_name){
     char am_file_name[MAX_LINE_LEN];
     FILE* am_file;
-    MacroNode *head;
     int status;
 
-    head = NULL;
+    macro_head_node = NULL;
     create_file(as_file_name,".am",am_file_name); 
     
     am_file = fopen(am_file_name,"w+");
@@ -38,11 +39,13 @@ int create_am_file(FILE* as_file, char* as_file_name){
         return 0;
     }
 
-    status = addAllMacros(as_file,as_file_name,&head);
-    if(status) status = expandMacros(as_file,as_file_name ,am_file,head);
+    status = addAllMacros(as_file,as_file_name,&macro_head_node);
+    if(status) status = expandMacros(as_file,as_file_name ,am_file,macro_head_node);
     if(status) status = removeMacroDecl(am_file,am_file_name);
-    freeMacroList(head);
-    if(status == 0) remove(am_file_name);
+    if(status == 0){
+        remove(am_file_name);
+        freeMacroList(macro_head_node);
+    }
     fclose(am_file);
     return status;
 }

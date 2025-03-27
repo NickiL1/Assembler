@@ -1,5 +1,6 @@
 #include "../Header_Files /lexer.h"
 #include "../Header_Files /secondpass.h"
+#include "../Header_Files /preassem.h"
 #include "../Header_Files /util.h"
 #include <string.h>
 
@@ -28,7 +29,7 @@ char *REGISTERS_ARRAY_2[] = {"r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"};
 /* Define the instructions */
 char *INSTRUCTIONS_ARRAY_2[] = {".data", ".string", ".extern", ".entry"};
 
-int secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTable* data_table, Label* head, int prevError){
+void secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTable* data_table, Label* head, int prevError){
     Error_Location location;
     int pos, status, error_raised;
     char line[MAX_LINE_LEN];
@@ -81,7 +82,7 @@ int secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTab
     free(data_table->data);
     free(data_table);
     freeLabelList(head);
-    return !error_raised;
+    freeMacroList(macro_head_node);
 }
 
 
