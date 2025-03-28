@@ -93,7 +93,7 @@ int addAllMacros(FILE* as_file, char* as_file_name, MacroNode** head){
             macroFlag = 1;
 
         }
-        else if(token.type == TOKEN_ENDMCRO){
+        else if(token.type == TOKEN_MCROEND){
             macroFlag = 0;
             token = get_next_token(line,&pos);
             if(token.type != TOKEN_EOL){
@@ -174,7 +174,7 @@ int removeMacroDecl(FILE* am_file, char* am_file_name){
         pos = 0;
         token = get_next_token(line,&pos);
         if(token.type == TOKEN_MCRO) macroFlag = 1;
-        else if(token.type == TOKEN_ENDMCRO) macroFlag = 0;
+        else if(token.type == TOKEN_MCROEND) macroFlag = 0;
         else if(macroFlag == 1) continue;
         else fprintf(am_file,"%s\n",line);
     }

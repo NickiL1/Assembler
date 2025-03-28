@@ -1,3 +1,10 @@
+/*
+    Author - Nick Levin 326737046
+
+    the main purpose of this file is to implement the dynamic list of 
+    macros and their content. 
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -77,12 +77,7 @@ void secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTa
         remove(ent_file_name);
         remove(ext_file_name);
     }
-    free(code_table->table);
-    free(code_table);
-    free(data_table->data);
-    free(data_table);
-    freeLabelList(head);
-    freeMacroList(macro_head_node);
+    free_all_memory(code_table,data_table,head);
 }
 
 

@@ -1,3 +1,12 @@
+/*  
+    @author- Nick Levin 326737046.
+
+    the file implements a lexer and parser for the users instructions and commands, and handles 
+    the  decomposition of the commands into its parts, while filling the data and code tables of the assembler.
+    the program also handles errors if there were any. 
+*/
+
+
 #include <ctype.h> 
 #include <string.h>
 #include <stdlib.h>
@@ -229,7 +238,7 @@ Token get_next_token(char *input, int* pos){
         token.type = TOKEN_MCRO;
     }
     else if(!strcmp(token.data,"mcroend")){
-        token.type = TOKEN_ENDMCRO;
+        token.type = TOKEN_MCROEND;
     }
     else{
         token.type = TOKEN_LABEL;

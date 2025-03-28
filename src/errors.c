@@ -1,3 +1,9 @@
+/* 
+    @author - Nick Levin  326737046
+
+    the main purpose of this file is to define the errors of the assembler.
+*/
+
 #include <stdio.h>
 #include "../Header_Files /errors.h"
 

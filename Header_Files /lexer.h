@@ -11,25 +11,25 @@
 
 typedef struct OpCode {
     char *opcode;    /* The name of the opcode corresponding to the operation */
-    int code;
-    int funct;
+    int code;   /* the decimal opcode */
+    int funct; 
 } OpCode;
 
 typedef enum {
     TOKEN_OPCODE,      
-    TOKEN_MCRO,    
-    TOKEN_ENDMCRO,      
+    TOKEN_MCRO,    /* the string "mcro"*/
+    TOKEN_MCROEND,     /* the string "mcroend"*/ 
     TOKEN_COMMA,       
     TOKEN_EOL,         
-    TOKEN_NUMBER,
-    TOKEN_DOUBLE,
-    TOKEN_INSTRUCTION,
-    TOKEN_REGISTER,
-    TOKEN_COMMAND_NUMBER,
-    TOKEN_AMP_LABEL,
-    TOKEN_LABEL,
+    TOKEN_NUMBER,   /* An integer - not a double*/
+    TOKEN_DOUBLE,   /* strictly double*/
+    TOKEN_INSTRUCTION, /* .entry, .extern, .data or .string */
+    TOKEN_REGISTER, /* r0 - r7 */
+    TOKEN_COMMAND_NUMBER, /* a number with "#" before it */
+    TOKEN_AMP_LABEL, /* a label with a "&" before it*/
+    TOKEN_LABEL, /* plain label(without ':')*/
     TOKEN_ERROR,
-    TOKEN_NULL
+    TOKEN_NULL /* just an empty token */
 } TokenType;
 
 
@@ -42,23 +42,23 @@ typedef struct Command{
     char opCode[5];
     Token arg1;
     Token arg2;
-    int totalWords;
-    int line;
+    int totalWords; /* the total number of words for this command */
+    int line; /* the line on which the command was incounterred in the .am file  */
 }Command;
 
 
 typedef struct CodeTable{
-    int capacity;
+    int capacity; /* max capacity*/
     int IC;
-    int size;
-    Command* table;
+    int size; /* actual used size*/
+    Command* table; /* table of commands */
 }CodeTable;
 
 typedef struct DataTable{
-    int capacity;
+    int capacity; /* max capacity*/
     int DC;
-    int size;
-    int* data;
+    int size; /* actual used size*/
+    int* data; /* table of the data image  */
 }DataTable;
 
 
