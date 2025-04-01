@@ -255,7 +255,7 @@ int parse_arg1(int *IC, Label* head, FILE* ob_file, FILE* ext_file, Error_Locati
             print_infile_error(ILLEGAL_LABEL_USE,location);
             return 0;
         }
-        word = (temp_label->IC - (*IC) - 1) << 3; /* calculate distance to label */
+        word = (temp_label->IC - (*IC) + 1) << 3; /* calculate distance to label */
         word = word | (1 << 2); /* A = 1, R = 0, E = 0*/
         fprintf(ob_file,"%07d %06x\n", (*IC), word & 0xFFFFFF);
         (*IC)++;
@@ -298,7 +298,7 @@ int parse_arg2(int *IC, Label* head, FILE* ob_file, FILE* ext_file, Error_Locati
             print_infile_error(ILLEGAL_LABEL_USE,location);
             return 0;
         }
-        word = (temp_label->IC - (*IC) - 1) << 3;
+        word = (temp_label->IC - (*IC) + 1) << 3;
         word = word | (1 << 2); /* A = 1, R = 0, E = 0*/
         fprintf(ob_file,"%07d %06x\n", (*IC), word & 0xFFFFFF);
         (*IC)++;

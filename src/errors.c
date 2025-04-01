@@ -34,7 +34,10 @@ Error errors[] = {
     {LABEL_CONFLICT,"Label of type .entry can not be also of type .extern"},
     {LABEL_ALREADY_DEFINED,"Label was already defined previously."},
     {ILLEGAL_LABEL_USE, "Can not use &Label with Label of type external."},
-    {MACRO_LABEL_COLLISION, "Macro name can not be also label name."}
+    {MACRO_LABEL_COLLISION, "Macro name can not be also label name."},
+    {EXTRA_TEXT_MCRO, "Extra text after macro declaration."},
+    {EXTRA_TEXT_MCROEND, "Extra text after mcroend."},
+    {EXTRA_TEXT_MCRO_EXP,"Extra text after macro name at expansion."}
 };
 
 void print_sys_error(Error_Code_Name error){

@@ -98,7 +98,7 @@ int addAllMacros(FILE* as_file, char* as_file_name, MacroNode** head){
             if(addMacroToList(head,token.data) == 0) return 0;
             token = get_next_token(line,&pos);
             if(token.type != TOKEN_EOL){
-                print_infile_error(EXTRA_TEXT,location);
+                print_infile_error(EXTRA_TEXT_MCRO,location);
                 status = 0;
                 continue;
             }
@@ -109,7 +109,7 @@ int addAllMacros(FILE* as_file, char* as_file_name, MacroNode** head){
             macroFlag = 0;
             token = get_next_token(line,&pos);
             if(token.type != TOKEN_EOL){
-                print_infile_error(EXTRA_TEXT,location);
+                print_infile_error(EXTRA_TEXT_MCROEND,location);
                 status = 0;
                 continue;
             }
@@ -149,7 +149,7 @@ int expandMacros(FILE* as_file,char* as_file_name, FILE* am_file, MacroNode* hea
         else{
             token = get_next_token(line,&pos);
             if(TOKEN_EOL != token.type){ 
-                print_infile_error(EXTRA_TEXT, location);
+                print_infile_error(EXTRA_TEXT_MCRO_EXP, location);
                 status = 0;
             }
             /* write the body of the macro */

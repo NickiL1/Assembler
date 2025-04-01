@@ -178,6 +178,19 @@ Token get_next_token(char *input, int* pos){
         (*pos)++;
         return token;
     }
+    if (input[(*pos)] == '"'){
+        token.data[0] = '"';
+        token_pos = 1;
+        (*pos)++;
+        while(input[(*pos)] != '\0' && input[(*pos)] != '"'){
+            token.data[token_pos] = input[(*pos)];
+            token_pos++;
+            (*pos)++;
+        }
+        token.data[token_pos] = input[(*pos)];
+        if(input[(*pos)] == '"') (*pos)++;
+        return token;
+    }
     /* copying into token.data its content, until a whitespace or '\0' or ',' */ 
     while(input[(*pos)] != '\0' && !isspace(input[(*pos)])  && input[(*pos)] != ','){
         token.data[token_pos] = input[(*pos)];

@@ -30,7 +30,10 @@ typedef enum Error_Code_Name{
     LABEL_CONFLICT,
     LABEL_ALREADY_DEFINED,
     ILLEGAL_LABEL_USE,
-    MACRO_LABEL_COLLISION
+    MACRO_LABEL_COLLISION,
+    EXTRA_TEXT_MCRO,
+    EXTRA_TEXT_MCROEND,
+    EXTRA_TEXT_MCRO_EXP
 } Error_Code_Name;
 
 typedef struct Error{
@@ -39,7 +42,7 @@ typedef struct Error{
 } Error;
 
 typedef struct Error_Location{
-    char filename[MAX_LABEL_LEN]; /* the file in which the error occurred*/
+    char filename[MAX_LINE_LEN]; /* the file in which the error occurred*/
     int line; /* the line at which the error occurred*/
 } Error_Location;
 
