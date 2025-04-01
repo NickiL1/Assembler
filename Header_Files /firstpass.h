@@ -7,7 +7,8 @@
     without translating them to machine code. 
 
     @param as_file_name - the name of the .as file. 
+    @param macro_head_node - a pointer to the head of the macro list. 
 */
-void firstPass(char* as_file_name);
+void firstPass(char* as_file_name, MacroNode *macro_head_node);
 
 #endif

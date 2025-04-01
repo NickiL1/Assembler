@@ -1,3 +1,13 @@
+/*  
+    @author- Nick Levin 326737046.
+
+    the file implements the pre assembly stage of the assembler. the pre assembler creates  a .am file 
+    with all the macros expanded, macro declarations removed, comment lines 
+    removed, and empty lines removed. if this proccess is without errors, the pre assembler continues to the second 
+    pass. 
+*/
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,27 +21,29 @@
 void pre_assembler(char* as_file_name){
     FILE *as_file;
     int res;
+    MacroNode *macro_head_node;
     as_file = fopen(as_file_name,"r");
+    macro_head_node = NULL;
     if(as_file == NULL){
         print_file_related_error(FILE_HANDLE,as_file_name);
         fclose(as_file);
         return;
     }
-    res = create_am_file(as_file,as_file_name);
+    res = create_am_file(as_file,as_file_name, macro_head_node);
     fclose(as_file);
-    if (res != 0) firstPass(as_file_name);
+    if (res != 0) firstPass(as_file_name, macro_head_node); /* start first pass if no errors were found */
     else return;
 }
 
 
 
-int create_am_file(FILE* as_file, char* as_file_name){
+int create_am_file(FILE* as_file, char* as_file_name, MacroNode *macro_head_node){
     char am_file_name[MAX_LINE_LEN];
     FILE* am_file;
     int status;
 
-    macro_head_node = NULL;
-    create_file(as_file_name,".am",am_file_name); 
+    
+    create_file_name(as_file_name,".am",am_file_name); 
     
     am_file = fopen(am_file_name,"w+");
     if(am_file == NULL){
@@ -39,11 +51,11 @@ int create_am_file(FILE* as_file, char* as_file_name){
         return 0;
     }
 
-    status = addAllMacros(as_file,as_file_name,&macro_head_node);
-    if(status) status = expandMacros(as_file,as_file_name ,am_file,macro_head_node);
-    if(status) status = removeMacroDecl(am_file,am_file_name);
+    status = addAllMacros(as_file,as_file_name,&macro_head_node); /* add macros to list */
+    if(status) status = expandMacros(as_file,as_file_name ,am_file,macro_head_node); /* expand the macros */
+    if(status) status = removeMacroDecl(am_file,am_file_name); /* remove all the macro declarations*/
     if(status == 0){
-        remove(am_file_name);
+        remove(am_file_name); /* remove the file in case of an error */
         freeMacroList(macro_head_node);
     }
     fclose(am_file);
@@ -71,7 +83,7 @@ int addAllMacros(FILE* as_file, char* as_file_name, MacroNode** head){
         pos = 0;
         token = get_next_token(line,&pos);
         
-        if(token.type == TOKEN_MCRO){
+        if(token.type == TOKEN_MCRO){ /* found macro declaration */
             token = get_next_token(line,&pos);
             if(token.type == TOKEN_EOL){
                 print_infile_error(MISSING_ARG,location);
@@ -90,10 +102,10 @@ int addAllMacros(FILE* as_file, char* as_file_name, MacroNode** head){
                 status = 0;
                 continue;
             }
-            macroFlag = 1;
+            macroFlag = 1; /* turn on macro flag*/
 
         }
-        else if(token.type == TOKEN_MCROEND){
+        else if(token.type == TOKEN_MCROEND){ /* found the end of the macro */
             macroFlag = 0;
             token = get_next_token(line,&pos);
             if(token.type != TOKEN_EOL){
@@ -102,7 +114,7 @@ int addAllMacros(FILE* as_file, char* as_file_name, MacroNode** head){
                 continue;
             }
         }
-        else if(macroFlag == 1){
+        else if(macroFlag == 1){ /* inside the macros body - add the line to the macro content*/
             if(addString(&((*head)->macroContent), line) == 0) return 0;
         }
     }
@@ -133,13 +145,14 @@ int expandMacros(FILE* as_file,char* as_file_name, FILE* am_file, MacroNode* hea
         pos = 0;
         token = get_next_token(line,&pos);
         node = searchMacro(head,token.data);
-        if(node == NULL) fprintf(am_file,"%s\n", line);
+        if(node == NULL) fprintf(am_file,"%s\n", line); /* line is not a macro name */
         else{
             token = get_next_token(line,&pos);
             if(TOKEN_EOL != token.type){ 
                 print_infile_error(EXTRA_TEXT, location);
                 status = 0;
             }
+            /* write the body of the macro */
             for(i = 0; i < node->macroContent.used; i++){
                 fprintf(am_file,"%s\n",node->macroContent.data[i]);
             }
@@ -157,6 +170,7 @@ int removeMacroDecl(FILE* am_file, char* am_file_name){
     Token token;
     macroFlag = 0;
 
+    /* create a temp file and copy into it the .am file content. and clear the .am file content*/
     temp_file = fopen("tempFile.txt","w+");
     if(temp_file == NULL){
         print_file_related_error(FILE_HANDLE,"tempFile.txt");
@@ -167,6 +181,7 @@ int removeMacroDecl(FILE* am_file, char* am_file_name){
     am_file = freopen(am_file_name,"w",am_file);
     rewind(temp_file);
 
+
     while(fgets(line,sizeof(line),temp_file)){
         if(strlen(line) > 0 && line[strlen(line) - 1] == '\n'){
             line[strlen(line) - 1] = '\0';
@@ -176,7 +191,7 @@ int removeMacroDecl(FILE* am_file, char* am_file_name){
         if(token.type == TOKEN_MCRO) macroFlag = 1;
         else if(token.type == TOKEN_MCROEND) macroFlag = 0;
         else if(macroFlag == 1) continue;
-        else fprintf(am_file,"%s\n",line);
+        else fprintf(am_file,"%s\n",line); /* only write to the .am file if not part of a macro declaration */
     }
     while(fgets(line,sizeof(line),am_file));
     fclose(temp_file);

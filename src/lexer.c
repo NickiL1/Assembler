@@ -48,7 +48,7 @@ void skip_whitespace(char *input, int* pos) {
 int is_empty_line(char line[]) { 
     int pos = 0;
     while (line[pos] != '\0') { 
-        if (!isspace(line[pos])) {  
+        if (!isspace(line[pos])) {  /* found non space char */
             return 0;  
         }
         pos++;  
@@ -71,6 +71,7 @@ int is_instr(char str[]) {
     if (str == NULL) {
         return 0;
     }
+    /* traverse all possible instructions */
     for (i = 0; i < INSTRUCTIONS_COUNT; i++) {
         if (strcmp(str, INSTRUCTIONS_ARRAY[i]) == 0) {
             return 1; 
@@ -84,7 +85,7 @@ int isNum(char *str) {
     
     if (str != NULL) {
         strtol(str, &ptr, 10);
-        if (*ptr == '\0' || *ptr == ' ') {
+        if (*ptr == '\0' || *ptr == ' ') { /* no remainder after strtol*/
             return 1;
         }
     }
@@ -113,9 +114,10 @@ int what_opcode(char str[]) {
     if (str == NULL) {
         return -1;
     }
+    /* traverse all possible opcodes  */
     for (i = 0; i < OPCODES_COUNT; i++) {
         if (strcmp(str, OPCODES_ARRAY[i].opcode) == 0) {
-            return i; 
+            return i; /* return index of the opcode in the array */
         }
     }
     return -1; 
@@ -127,9 +129,10 @@ int what_reg(char str[]) {
     if (str == NULL) {
         return -1;
     }
-    for (i = 0; i < REG_COUNT; i++) {
+    /* traverse all possible registers  */
+    for (i = 0; i < REGISTER_COUNT; i++) {
         if (strcmp(str, REGISTERS_ARRAY[i]) == 0) {
-            return i; 
+            return i; /* conveniently return the number of the register  */
         }
     }
     return -1; 
@@ -138,6 +141,7 @@ int what_reg(char str[]) {
 
 int is_valid_macro_name(MacroNode *head ,char name[]){
     int i = 0;
+    /* checking all the conditions for a valid macro name */
     if(is_instr(name) || what_opcode(name) >= 0 || what_reg(name) >= 0 ||
     !strcmp(name,"mcro") || !strcmp(name,"mcroend") || searchMacro(head,name) != NULL ||
     strlen(name) > MAX_LABEL_LEN){ 
@@ -192,12 +196,13 @@ Token get_next_token(char *input, int* pos){
         return token;
     }
     else if(strcmp(token.data, "#") == 0 || strcmp(token.data,"&") == 0){
-        token.type = TOKEN_ERROR;
+        token.type = TOKEN_ERROR; 
         return token;
     }
     else if (token.data[0] == '#'){
         char copy[MAX_LINE_LEN];
         int i = 1;
+        /* copy the number without the '#'*/
         while (token.data[i] != '\0'){
             copy[i - 1] = token.data[i];
             i++;
@@ -218,6 +223,7 @@ Token get_next_token(char *input, int* pos){
     else if(token.data[0] == '&'){
         char copy[MAX_LINE_LEN];
         int i = 1;
+        /* copy the label without '&'*/
         while (token.data[i] != '\0'){
             copy[i - 1] = token.data[i];
             i++;
@@ -270,17 +276,17 @@ int contains_keyword(char *str,char *keyword) {
 
 
 
-int isLabelDecl(char str[], Label* head, Error_Location location){
+int isLabelDecl(char str[], Label* head, Error_Location location, MacroNode *macro_head_node){
     int i, status;
     char str_copy[MAX_LINE_LEN];
     i = 0;
-    if(str[strlen(str) - 1] != ':') return -1;
+    if(str[strlen(str) - 1] != ':') return -1; /* not a label declaration */
     while(str[i] != ':'){
         str_copy[i] = str[i];
         i++;
     }
     str_copy[i] = '\0';
-    status = isLegalLabelName(str_copy,head);
+    status = isLegalLabelName(str_copy,head, macro_head_node);
     if(searchLabel(head,str_copy) != NULL){
         print_infile_error(LABEL_ALREADY_DEFINED,location);
         return 0;
@@ -294,14 +300,15 @@ int isLabelDecl(char str[], Label* head, Error_Location location){
 }
 
 
-int isLegalLabelName(char name[], Label* head){
+int isLegalLabelName(char name[], Label* head, MacroNode *macro_head_node){
     int i = 0;
+    /* check all the conditions */
     if(is_instr(name) || what_opcode(name) >= 0 || what_reg(name) >= 0 ||
     !strcmp(name,"mcro") || !strcmp(name,"mcroend") || searchLabel(head,name) != NULL ||
     strlen(name) > MAX_LABEL_LEN || searchMacro(macro_head_node, name) != NULL){ 
         return 0;
     }
-    if(!isalpha(name[i])){
+    if(!isalpha(name[i])){ /* first char must be alphabetic */
         return 0;
     }
     while(name[i] != '\0'){
@@ -326,16 +333,20 @@ int readLabel(char line[], Label** head, Error_Location location, CodeTable* cod
     token.data[strlen(token.data) - 1] = '\0'; /* get rid of ':' */
     strcpy(temp->name,token.data);
     token = get_next_token(line,&pos);
+
     if(token.type == TOKEN_INSTRUCTION){
-        strcpy(temp->type,"data");
+        if (strcmp(token.data,".entry") == 0 || strcmp(token.data,".extern") == 0){
+            free(temp);
+            return -1;
+        }
+        strcpy(temp->type,"data"); /* label of type "data"*/
         temp->IC = (data_table->DC);
-        status =  readInstruction(line,location,data_table);
+        status =  readInstruction(line,location,data_table); /* analyze instruction  */
     }
     else if(token.type == TOKEN_OPCODE){
-        strcpy(temp->type,"code");
+        strcpy(temp->type,"code"); /* label of type "code"*/
         temp->IC = (code_table->IC);
-        // analyze command
-        status = readCommand(line,location,code_table);
+        status = readCommand(line,location,code_table); /* analyze command  */
     }
     else if(token.type == TOKEN_EOL){
         print_infile_error(MISSING_INFO,location);
@@ -345,7 +356,7 @@ int readLabel(char line[], Label** head, Error_Location location, CodeTable* cod
         print_infile_error(UNRECOGNIZED_COMMAND,location);
         status = 0;
     }
-    if (status == 1) addLabelToList(head,temp);
+    addLabelToList(head,temp); /* add the label to the label list */
     return status;
 }
 
@@ -363,13 +374,12 @@ int readInstruction(char line[], Error_Location location, DataTable* data_table)
         if(token.type == TOKEN_EOL) return -1;
     }
     if (strcmp(token.data,".entry") == 0 || strcmp(token.data,".extern") == 0){
-        print_infile_error(ILLEGAL_INSTR,location);
-        return 0;
+        return -1;
     }
     if(strcmp(".data", token.data) == 0){
         token = get_next_token(line,&pos);
         if(token.type == TOKEN_EOL){
-            print_infile_error(MISSING_DATA,location);
+            print_infile_error(MISSING_DATA,location); /* .data with no integers to read*/
             return 0;
         }
         while(1){
@@ -377,15 +387,18 @@ int readInstruction(char line[], Error_Location location, DataTable* data_table)
                 print_infile_error(MISSING_DATA,location);
                 return 0;
             }
+            /* handle errors if not numbers */
             if(!isNum(token.data)) {
                 if (is_double(token.data)) print_infile_error(ILLEGAL_DOUBLE,location);
                 else print_infile_error(NOT_A_NUMBER,location);
                 return 0;
             }
+            /* increase data table capacity if needed*/
             if(data_table->size == data_table->capacity){
                 data_table->capacity *= 2;
                 data_table->data = (int*)realloc(data_table->data, data_table->capacity * sizeof(int));
             }
+            /* add number to data table */
             data_table->data[data_table->size] = atoi(token.data);
             data_table->DC++;
             data_table->size++;
@@ -404,22 +417,26 @@ int readInstruction(char line[], Error_Location location, DataTable* data_table)
             print_infile_error(MISSING_STRING,location);
             return 0;
         }
+        /* string has to be enclosed in "" */
         if(token.data[0] != '"' || token.data[strlen(token.data) - 1] != '"'){
             print_infile_error(STRING_ENCLOSURE,location);
             return 0;
         }
         c = token.data[i];
         while(c != '"'){
+            /* increase data table capacity if needed*/
             if(data_table->size == data_table->capacity){
                 data_table->capacity *= 2;
                 data_table->data = (int*)realloc(data_table->data, data_table->capacity * sizeof(int));
             }
+            /* add char to data table */
             data_table->data[data_table->size] = (int)c;
             data_table->DC++;
             data_table->size++;
             i++;
             c = token.data[i];
         }
+        /* add '\0' char to data table at the end of the string */
         if(data_table->size == data_table->capacity){
             data_table->capacity *= 2;
             data_table->data = (int*)realloc(data_table->data, data_table->capacity * sizeof(int));
@@ -444,10 +461,19 @@ int read_entry_extern(char line[], Label** head, Error_Location location){
     temporary = createLabel();
     if(temporary == NULL) return 0;
     token = get_next_token(line,&pos);
+    /* look for an instruction */
+    while(token.type != TOKEN_INSTRUCTION){
+        token = get_next_token(line,&pos);
+        if(token.type == TOKEN_EOL){ 
+            free (temporary);
+            return -1;
+        }
+    }
     temp = token;
-    if(strcmp(token.data, ".entry") != 0 && strcmp(token.data, ".extern") != 0) return -1;
+    if(strcmp(token.data, ".entry") != 0 && strcmp(token.data, ".extern") != 0) return -1; /* instruction is not .entry or .extern*/
     token = get_next_token(line,&pos);
     if(expect(TOKEN_LABEL,token,location,0) == 0) return 0;
+    /* add extern label to label list */
     if(strcmp(temp.data, ".extern") == 0){
         temporary->IC = 0;
         strcpy(temporary->name,token.data);
@@ -474,11 +500,12 @@ int readCommand(char line[], Error_Location location, CodeTable* code_table){
     while(token.type != TOKEN_OPCODE){
         token = get_next_token(line,&pos);
         if(token.type == TOKEN_EOL){
-            print_infile_error(UNRECOGNIZED_COMMAND,location);
+            print_infile_error(UNRECOGNIZED_COMMAND,location); /* did not find an appropriate opcode*/
             return 0;
         } 
     }
     strcpy(command.opCode,token.data);
+    /* parse the arguments according to each opcode */
     if (!strcmp("add",token.data) || !strcmp("mov",token.data) || !strcmp("sub",token.data)){
         token = get_next_token(line,&pos);
         if(expect(TOKEN_COMMAND_NUMBER,token,location,0) == 0 || expect(TOKEN_LABEL,token,location,0) == 0 || expect(TOKEN_REGISTER,token,location,0) == 0) return 0;
@@ -616,6 +643,8 @@ int expect(TokenType type, Token token, Error_Location location, int printError)
             print_infile_error(ILLEGAL_DOUBLE,location);
         }
         else{
+            /* at this point the only possible mismatch is between the types: TOKEN_REGISTER, TOKEN_COMMAND_NUMBER, 
+            TOKEN_AMP_LABEL,  TOKEN_LABEL. for some opcodes there are several possible argument types */
             if (printError) print_infile_error(ILLEGAL_ARG,location);
             return 2;
         }

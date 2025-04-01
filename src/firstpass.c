@@ -17,7 +17,7 @@
 #include <string.h>
 
 
-void firstPass(char* as_file_name){
+void firstPass(char* as_file_name, MacroNode *macro_head_node){
     /* declaring and initializing some variables which will be used in the first and second pass.*/
     FILE* am_file;
     Error_Location location;
@@ -40,7 +40,7 @@ void firstPass(char* as_file_name){
     data_table->data = (int*)malloc(20 * sizeof(int));
     data_table->capacity = 20;
 
-    create_file(as_file_name,".am",am_file_name); 
+    create_file_name(as_file_name,".am",am_file_name); 
     strcpy(location.filename,am_file_name);
     location.line = 0;
     code_table->size = 0;
@@ -55,7 +55,7 @@ void firstPass(char* as_file_name){
     if(am_file == NULL){
         /* if file could not be opened then quit first pass and free all memory.*/
         print_file_related_error(FILE_HANDLE,location.filename);
-        free_all_memory(code_table,data_table,head);
+        free_all_memory(code_table,data_table,head, macro_head_node);
         return;
     }
 
@@ -71,12 +71,12 @@ void firstPass(char* as_file_name){
         location.line++;
         pos = 0;
         token = get_next_token(line,&pos);
-        success_status = isLabelDecl(token.data,head,location);
+        success_status = isLabelDecl(token.data,head,location, macro_head_node);
         if( success_status == 1){ /* success status 1 means successful label declaration */
             /* store the label and read the command or instruction that are after the label */
            success_status = readLabel(line,&head,location,code_table,data_table); 
         }
-        else if (success_status == -1){ /* success status -1 means no label was found */
+        if (success_status == -1){ /* success status -1 means no label was found or label was found with .entry or .extern after */
             /* try to find entry or external */
             success_status = read_entry_extern(line,&head,location);  
             /* if sis not find entry or external, try finding a .data or .string instruction */
@@ -105,7 +105,7 @@ void firstPass(char* as_file_name){
         temp = temp->next;
     }
     /* start second pass */
-    secondPass(am_file_name, am_file,code_table,data_table,head, error_raised);
+    secondPass(am_file_name, am_file,code_table,data_table,head, error_raised, macro_head_node);
 }
 
 

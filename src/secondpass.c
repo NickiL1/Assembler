@@ -1,3 +1,11 @@
+/*  
+    @author- Nick Levin 326737046.
+
+    the file implements the second pass of the assembler. the goal of the second pass is to translate 
+    all the stored commands to hex base and create the .ob, .ent and .ext files. 
+*/
+
+
 #include "../Header_Files /lexer.h"
 #include "../Header_Files /secondpass.h"
 #include "../Header_Files /preassem.h"
@@ -29,7 +37,7 @@ char *REGISTERS_ARRAY_2[] = {"r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"};
 /* Define the instructions */
 char *INSTRUCTIONS_ARRAY_2[] = {".data", ".string", ".extern", ".entry"};
 
-void secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTable* data_table, Label* head, int prevError){
+void secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTable* data_table, Label* head, int prevError, MacroNode *macro_head_node){
     Error_Location location;
     int pos, status, error_raised;
     char line[MAX_LINE_LEN];
@@ -39,9 +47,10 @@ void secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTa
     location.line = 0;
     status = 1;
     error_raised = prevError;
-    create_file(am_file_name,".ent",ent_file_name);
-    create_file(am_file_name,".ob", ob_file_name);
-    create_file(am_file_name,".ext", ext_file_name);
+    /* create the file names */
+    create_file_name(am_file_name,".ent",ent_file_name);
+    create_file_name(am_file_name,".ob", ob_file_name);
+    create_file_name(am_file_name,".ext", ext_file_name);
 
 
     rewind(am_file);
@@ -49,37 +58,27 @@ void secondPass(char* am_file_name, FILE* am_file, CodeTable* code_table, DataTa
         location.line++;
         pos = 0;
         token = get_next_token(line,&pos);
+        while(strcmp(token.data, ".entry") != 0){
+            token = get_next_token(line,&pos);
+            if (token.type == TOKEN_EOL) break;
+        }
         if(strcmp(token.data, ".entry") == 0){
             token = get_next_token(line,&pos);
-            status = add_entry(token.data,head,location);
+            status = add_entry(token.data,head,location); /* add entry label to the list */
         }
         if (error_raised == 0) error_raised = !status;
     }
-    status = create_ent_file(ent_file_name,head);
+    status = create_ent_file(ent_file_name,head); /* create the .ent file */
     if (status == 0) error_raised = 1;
-    status = create_ob_ext_files(am_file_name,ob_file_name,ext_file_name,head,code_table,data_table);
+    status = create_ob_ext_files(am_file_name,ob_file_name,ext_file_name,head,code_table,data_table); /* create .ob file*/
     if (status == 0) error_raised = 1;
-    // for(int i = 0; i < data_table->size; i++){
-    //     printf("%d DC: %d\n",data_table->data[i], data_table->DC);
-    // }
-    // while (head != NULL){
-    //     printf("|%s|, %d %s \n", head->name, head->IC,head->type);
-    //     head = head->next;
-    // }
-    
-    // for ( int j = 0; j < code_table->size; j++)
-    // {
-    //     printf("opcode: %s, arg1: %s, arg2: %s, IC: %d",code_table->table[j].opCode, code_table->table[j].arg1.data, code_table->table[j].arg2.data, code_table->IC);
-    //     printf(" line : %d\n", code_table->table[j].line);
-    // }
-    if (error_raised){
+    if (error_raised){ 
         remove(ob_file_name);
         remove(ent_file_name);
         remove(ext_file_name);
     }
-    free_all_memory(code_table,data_table,head);
+    free_all_memory(code_table,data_table,head, macro_head_node);
 }
-
 
 
 int add_entry(char label[], Label* head, Error_Location location){
@@ -90,7 +89,7 @@ int add_entry(char label[], Label* head, Error_Location location){
         print_infile_error(UNDEFINED_LABEL,location);
         return 0;
     }
-    if (strcmp(temp->type,"external") == 0){
+    if (strcmp(temp->type,"external") == 0){ /* same label cant be extern and entry simultaneously */
         print_infile_error(LABEL_CONFLICT,location);
         return 0;
     }
@@ -110,12 +109,13 @@ int create_ent_file(char ent_file_name[], Label* head){
     }
     temp = head;
     while(temp != NULL){
+        /* if label is entry, then add it to the .ent file */
         if (contains_keyword(temp->type, "entry")) fprintf(ent_file,"%s %07d\n", temp->name, temp->IC);
         temp = temp->next;
     }
     size = ftell(ent_file);
     fclose(ent_file);
-    if (size <= 0){
+    if (size <= 0){ /* if .ent file is empty, no entry labels were found */
         remove(ent_file_name);
     }
     return 1;
@@ -145,14 +145,16 @@ int create_ob_ext_files(char* am_file_name, char* ob_file_name, char* ext_file_n
         print_file_related_error(CREATE_FILE,ext_file_name);
         return 0;
     }
-
+    /* write the size of the code table and data table*/
     fprintf(ob_file,"     %d %d\n",code_table->IC - 100, data_table->DC);
+    /* write each command to the .ob file, and if needed also to the .ext file */
     for (j = 0; j < code_table->size; j++){
         temp_command = code_table->table[j];
         location.line = temp_command.line;
         status = write_ob_ext(temp_command,&IC,head,ob_file,ext_file,location);
         if (status == 0) error = 1;
     }
+    /* write the data table to the .ob file */
     for(j = 0; j < data_table->size; j++){
         fprintf(ob_file,"%07d %06x\n", IC, data_table->data[j] & 0xFFFFFF);
         IC++;
@@ -200,12 +202,15 @@ int write_ob_ext(Command command, int *IC, Label* head, FILE* ob_file, FILE* ext
         temp = 3; /* register argument*/
         word = word | (temp << 11);
     }
+    /* parse destination and source args for the first word if they are not registers*/
     if (arg1.type == TOKEN_LABEL) word = word | (1 << 16);
     else if(arg1.type == TOKEN_AMP_LABEL) word = word | (2 << 16);
     if (arg2.type == TOKEN_LABEL) word = word | (1 << 11);
     else if(arg2.type == TOKEN_AMP_LABEL) word = word | (2 << 11);
+    /* write the first word of the command*/
     fprintf(ob_file,"%07d %06x\n", (*IC), word);
     (*IC)++;
+    /* write additional words if needed*/
     status = parse_arg1(IC,head,ob_file, ext_file,location,arg1);
     if (status == 0) error = 1;
     status = parse_arg2(IC,head,ob_file,ext_file,location,arg2);
@@ -224,6 +229,7 @@ int parse_arg1(int *IC, Label* head, FILE* ob_file, FILE* ext_file, Error_Locati
         (*IC)++;
     }
     else if (arg1.type == TOKEN_LABEL){
+        /* make sure the label is in the label list*/
         temp_label = searchLabel(head, arg1.data);
         if (temp_label == NULL){
             print_infile_error(UNDEFINED_LABEL, location);
@@ -244,11 +250,12 @@ int parse_arg1(int *IC, Label* head, FILE* ob_file, FILE* ext_file, Error_Locati
             print_infile_error(UNDEFINED_LABEL, location);
             return 0;
         }
+        /* cant use &label if label is of type external*/
         if (strcmp(temp_label->type,"external") == 0){
             print_infile_error(ILLEGAL_LABEL_USE,location);
             return 0;
         }
-        word = (temp_label->IC - (*IC) - 1) << 3;
+        word = (temp_label->IC - (*IC) - 1) << 3; /* calculate distance to label */
         word = word | (1 << 2); /* A = 1, R = 0, E = 0*/
         fprintf(ob_file,"%07d %06x\n", (*IC), word & 0xFFFFFF);
         (*IC)++;
