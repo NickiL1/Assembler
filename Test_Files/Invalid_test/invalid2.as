@@ -1,9 +1,14 @@
 .entry LENGTH
-
+mcro ml
+bne EXIT
+cmp VALUE, #-12
+bne &EXIT
+mcroend
+ml: add r1, r2
 MAIN:,,mov @r3 , LENGTH
 LOOP: jmp L1
 prn a
-bne @W
+bne m1
 sub r1,, @r4
 L3
 L1: in K2

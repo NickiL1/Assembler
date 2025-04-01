@@ -23,11 +23,11 @@ void pre_assembler(char* as_file_name);
 
     @param as_file - the .as file. 
     @param as_file_name - the name of the .as file. 
-    @param macro_head_node - the head pointer to the macro list. 
+    @param macro_head_node - the  double head pointer to the macro list. 
 
     @return 1 successfully created .am file, 0 otherwise. 
 */
-int create_am_file(FILE* as_file, char* as_file_name, MacroNode *macro_head_node);
+int create_am_file(FILE* as_file, char* as_file_name, MacroNode **macro_head_node);
 
 
 /* 

@@ -24,7 +24,7 @@ void create_file_name(char file_name[], char extension[], char buffer[]){
     char* dot;
     strcpy(buffer,file_name);
     dot = strrchr(buffer, '.'); /* search for a '.' in the file name */
-    if (dot == NULL) dot = buffer + strlen(buffer); /* no '.' in the file name */
+    if (dot == NULL|| dot == buffer) dot = buffer + strlen(buffer); /* no '.' in the file name or '.' in the begining */
     strcpy(dot, extension); /* add the extension */
 }
 

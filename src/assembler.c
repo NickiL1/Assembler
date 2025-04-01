@@ -5,16 +5,14 @@
 #include "../Header_Files /errors.h"
 #include "../Header_Files /table.h"
 #include "../Header_Files /firstpass.h"
+#include "../Header_Files /util.h"
 
 int main(int argc, char* argv[]){
     int arg = 1;
+    char filename[MAX_LINE_LEN];
     while (arg < argc){
-        if(strstr(argv[arg], ".as") == NULL){
-            print_file_related_error(AS_EXTENSION, argv[arg]);
-            arg++;
-            continue;
-        }
-        pre_assembler(argv[arg]);
+        create_file_name(argv[arg],".as",filename);
+        pre_assembler(filename);
         arg++;
     }
     return 0;

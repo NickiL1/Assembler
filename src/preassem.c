@@ -29,7 +29,7 @@ void pre_assembler(char* as_file_name){
         fclose(as_file);
         return;
     }
-    res = create_am_file(as_file,as_file_name, macro_head_node);
+    res = create_am_file(as_file,as_file_name, &macro_head_node);
     fclose(as_file);
     if (res != 0) firstPass(as_file_name, macro_head_node); /* start first pass if no errors were found */
     else return;
@@ -37,7 +37,7 @@ void pre_assembler(char* as_file_name){
 
 
 
-int create_am_file(FILE* as_file, char* as_file_name, MacroNode *macro_head_node){
+int create_am_file(FILE* as_file, char* as_file_name, MacroNode **macro_head_node){
     char am_file_name[MAX_LINE_LEN];
     FILE* am_file;
     int status;
@@ -51,12 +51,12 @@ int create_am_file(FILE* as_file, char* as_file_name, MacroNode *macro_head_node
         return 0;
     }
 
-    status = addAllMacros(as_file,as_file_name,&macro_head_node); /* add macros to list */
-    if(status) status = expandMacros(as_file,as_file_name ,am_file,macro_head_node); /* expand the macros */
+    status = addAllMacros(as_file,as_file_name,macro_head_node); /* add macros to list */
+    if(status) status = expandMacros(as_file,as_file_name ,am_file,*macro_head_node); /* expand the macros */
     if(status) status = removeMacroDecl(am_file,am_file_name); /* remove all the macro declarations*/
     if(status == 0){
         remove(am_file_name); /* remove the file in case of an error */
-        freeMacroList(macro_head_node);
+        freeMacroList(*macro_head_node);
     }
     fclose(am_file);
     return status;
